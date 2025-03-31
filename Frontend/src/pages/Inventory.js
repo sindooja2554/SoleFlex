@@ -102,51 +102,22 @@ function Inventory() {
               <span className="font-thin text-gray-400 text-xs">
                 Last 7 days
               </span>
-            </div>
-            <div className="flex flex-col gap-3 p-10   w-full  md:w-3/12 sm:border-y-2  md:border-x-2 md:border-y-0">
-              <span className="font-semibold text-yellow-600 text-base">
-                Stores
-              </span>
-              <div className="flex gap-8">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-gray-600 text-base">
-                    {stores.length}
-                  </span>
-                  <span className="font-thin text-gray-400 text-xs">
-                    Last 7 days
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-semibold text-gray-600 text-base">
-                    $2000
-                  </span>
-                  <span className="font-thin text-gray-400 text-xs">
-                    Revenue
-                  </span>
+              </div>
+              <div className="flex flex-col gap-3 p-10  w-full  md:w-3/12  sm:border-y-2 md:border-x-2 md:border-y-0">
+                <span className="font-semibold text-purple-600 text-base">
+                  Top Selling
+                </span>
+                <div className="flex gap-8">
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-600 text-base">
+                      5
+                    </span>
+                    <span className="font-thin text-gray-400 text-xs">
+                      Last 7 days
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col gap-3 p-10  w-full  md:w-3/12  sm:border-y-2 md:border-x-2 md:border-y-0">
-              <span className="font-semibold text-purple-600 text-base">
-                Top Selling
-              </span>
-              <div className="flex gap-8">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-gray-600 text-base">
-                    5
-                  </span>
-                  <span className="font-thin text-gray-400 text-xs">
-                    Last 7 days
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-semibold text-gray-600 text-base">
-                    $1500
-                  </span>
-                  <span className="font-thin text-gray-400 text-xs">Cost</span>
-                </div>
-              </div>
-            </div>
             <div className="flex flex-col gap-3 p-10  w-full  md:w-3/12  border-y-2  md:border-x-2 md:border-y-0">
               <span className="font-semibold text-red-600 text-base">
                 Low Stocks
@@ -154,18 +125,10 @@ function Inventory() {
               <div className="flex gap-8">
                 <div className="flex flex-col">
                   <span className="font-semibold text-gray-600 text-base">
-                    12
-                  </span>
-                  <span className="font-thin text-gray-400 text-xs">
-                    Ordered
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-semibold text-gray-600 text-base">
                     2
                   </span>
                   <span className="font-thin text-gray-400 text-xs">
-                    Not in Stock
+                    Ordered
                   </span>
                 </div>
               </div>
@@ -223,13 +186,13 @@ function Inventory() {
                   Products
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Manufacturer
+                  Category
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                   Stock
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Description
+                  Price per Unit
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                   Availibility
@@ -254,7 +217,7 @@ function Inventory() {
                       {element.stock}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {element.description}
+                      ${element.description}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {element.stock > 0 ? "In Stock" : "Not in Stock"}

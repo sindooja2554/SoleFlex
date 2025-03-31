@@ -112,7 +112,7 @@ export default function AddProduct({
                               htmlFor="manufacturer"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Manufacturer
+                              Category
                             </label>
                             <input
                               type="text"
@@ -170,25 +170,36 @@ export default function AddProduct({
                               htmlFor="description"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Description
+                              Price per unit
                             </label>
-                            <textarea
+                            <input 
                               id="description"
-                              rows="5"
+                              type="text"
                               name="description"
-                              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="Write a description..."
+                              className="block p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="Ex. 78.99"
                               value={product.description}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
+                            />
+                            <label
+                              htmlFor="threshold"
+                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Standard glass, 3.8GHz 8-core 10th-generation
-                              Intel Core i7 processor, Turbo Boost up to 5.0GHz,
-                              16GB 2666MHz DDR4 memory, Radeon Pro 5500 XT with
-                              8GB of GDDR6 memory, 256GB SSD storage, Gigabit
-                              Ethernet, Magic Mouse 2, Magic Keyboard - US
-                            </textarea>
+                              Threshold value
+                            </label>
+                            <input 
+                              id="threshold"
+                              type="text"
+                              name="threshold"
+                              className="block p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="Ex. 10"
+                              value={product.description}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
+                            />
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">

@@ -69,7 +69,7 @@ function PurchaseDetails() {
                 onClick={addSaleModalSetting}
               >
                 {/* <Link to="/inventory/add-product">Add Product</Link> */}
-                Add Purchase
+                Place Order
               </button>
             </div>
           </div>
