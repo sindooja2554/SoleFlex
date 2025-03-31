@@ -1,3 +1,4 @@
+const { findAllByTestId } = require("@testing-library/react");
 const mongoose = require("mongoose");
 
 const StoreSchema = new mongoose.Schema(
@@ -17,7 +18,7 @@ const StoreSchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      required: true,
+      required: false,
     },
     city: {
       type: String,
@@ -25,7 +26,7 @@ const StoreSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   { timestamps: true }
