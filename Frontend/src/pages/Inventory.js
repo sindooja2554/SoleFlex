@@ -8,9 +8,13 @@ function Inventory() {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateProduct, setUpdateProduct] = useState([]);
   const [products, setAllProducts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState();
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [updatePage, setUpdatePage] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [stores, setAllStores] = useState([]);
+  const itemsPerPage = 10;
 
   const authContext = useContext(AuthContext);
   console.log('====================================');
@@ -22,22 +26,17 @@ function Inventory() {
     fetchSalesData();
   }, [updatePage]);
 
+  useEffect(() => {
+    applyFilters();
+  }, [searchTerm, products]);
+
   // Fetching Data of All Products
   const fetchProductsData = () => {
     fetch(`http://localhost:4000/api/product/get/${authContext.user}`)
       .then((response) => response.json())
       .then((data) => {
         setAllProducts(data);
-      })
-      .catch((err) => console.log(err));
-  };
-
-  // Fetching Data of Search Products
-  const fetchSearchData = () => {
-    fetch(`http://localhost:4000/api/product/search?searchTerm=${searchTerm}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setAllProducts(data);
+        setFilteredProducts(data);
       })
       .catch((err) => console.log(err));
   };
@@ -83,7 +82,54 @@ function Inventory() {
   // Handle Search Term
   const handleSearchTerm = (e) => {
     setSearchTerm(e.target.value);
-    fetchSearchData();
+  };
+
+  // Apply Filters
+  const applyFilters = () => {
+    const filtered = products.filter((product) => {
+      const search = searchTerm.toLowerCase();
+      return (
+        product.name.toLowerCase().includes(search) ||
+        product.manufacturer.toLowerCase().includes(search) ||
+        product.stock.toString().includes(search) ||
+        product.description.toString().includes(search)
+      );
+    });
+    setFilteredProducts(filtered);
+    setCurrentPage(1); // Reset to the first page after filtering
+  };
+
+  // Sorting Logic
+  const handleSort = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+
+    const sortedProducts = [...filteredProducts].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "ascending" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "ascending" ? 1 : -1;
+      return 0;
+    });
+    setFilteredProducts(sortedProducts);
+  };
+
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+
+  const nextPage = () => {
+    if (currentPage < Math.ceil(filteredProducts.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const previousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
@@ -100,7 +146,6 @@ function Inventory() {
                 {products.length}
               </span>
               <span className="font-thin text-gray-400 text-xs">
-                Last 7 days
               </span>
               </div>
               <div className="flex flex-col gap-3 p-10  w-full  md:w-3/12  sm:border-y-2 md:border-x-2 md:border-y-0">
@@ -113,14 +158,13 @@ function Inventory() {
                       5
                     </span>
                     <span className="font-thin text-gray-400 text-xs">
-                      Last 7 days
                     </span>
                   </div>
                 </div>
               </div>
             <div className="flex flex-col gap-3 p-10  w-full  md:w-3/12  border-y-2  md:border-x-2 md:border-y-0">
               <span className="font-semibold text-red-600 text-base">
-                Low Stocks
+                Out of Stock
               </span>
               <div className="flex gap-8">
                 <div className="flex flex-col">
@@ -128,7 +172,7 @@ function Inventory() {
                     2
                   </span>
                   <span className="font-thin text-gray-400 text-xs">
-                    Ordered
+                    
                   </span>
                 </div>
               </div>
@@ -182,17 +226,29 @@ function Inventory() {
           <table className="min-w-full divide-y-2 divide-gray-200 text-sm">
             <thead>
               <tr>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Products
+                <th
+                  className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900 cursor-pointer"
+                  onClick={() => handleSort("name")}
+                >
+                  Products {sortConfig.key === "name" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Category
+                <th
+                  className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900 cursor-pointer"
+                  onClick={() => handleSort("manufacturer")}
+                >
+                  Category {sortConfig.key === "manufacturer" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Stock
+                <th
+                  className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900 cursor-pointer"
+                  onClick={() => handleSort("stock")}
+                >
+                  Stock {sortConfig.key === "stock" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Price per Unit
+                <th
+                  className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900 cursor-pointer"
+                  onClick={() => handleSort("description")}
+                >
+                  Price per Unit {sortConfig.key === "description" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                   Availibility
@@ -204,7 +260,7 @@ function Inventory() {
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              {products.map((element, index) => {
+              {currentProducts.map((element, index) => {
                 return (
                   <tr key={element._id}>
                     <td className="whitespace-nowrap px-4 py-2  text-gray-900">
@@ -241,6 +297,27 @@ function Inventory() {
               })}
             </tbody>
           </table>
+          {/* Pagination */}
+          <div className="flex justify-between items-center p-4">
+            <button
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+              onClick={previousPage}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of{" "}
+              {Math.ceil(filteredProducts.length / itemsPerPage)}
+            </span>
+            <button
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+              onClick={nextPage}
+              disabled={currentPage === Math.ceil(filteredProducts.length / itemsPerPage)}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>
