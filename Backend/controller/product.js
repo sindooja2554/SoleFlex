@@ -1,6 +1,8 @@
 const Product = require("../models/Product");
 const Purchase = require("../models/purchase");
 const Sales = require("../models/sales");
+const User = require("../models/users");
+const nodemailer = require("../utility/nodemailer");
 
 // Add Post
 const addProduct = (req, res) => {
@@ -75,10 +77,25 @@ const searchProduct = async (req, res) => {
   res.json(products);
 };
 
+const lowStock = async (req, res) => {
+
+  let user = await User.findOne({_id: req.body.userID})
+  let allproducts = await Product.find({});
+  let lowStockProducts = [];
+  allproducts.forEach(product => {
+    if(product.stock < 10) {
+      lowStockProducts.push(product);
+    }
+  })
+  nodemailer.sendMail(user.email, "lowstock", "Low Stock Alert", lowStockProducts)
+  res.json([user, lowStockProducts])
+}
+
 module.exports = {
   addProduct,
   getAllProducts,
   deleteSelectedProduct,
   updateSelectedProduct,
   searchProduct,
+  lowStock
 };
