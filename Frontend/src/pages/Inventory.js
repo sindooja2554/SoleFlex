@@ -17,10 +17,6 @@ function Inventory() {
   const itemsPerPage = 10;
 
   const authContext = useContext(AuthContext);
-  console.log('====================================');
-  console.log(authContext);
-  console.log('====================================');
-
   useEffect(() => {
     fetchProductsData();
     fetchSalesData();
@@ -90,9 +86,9 @@ function Inventory() {
       const search = searchTerm.toLowerCase();
       return (
         product.name.toLowerCase().includes(search) ||
-        product.manufacturer.toLowerCase().includes(search) ||
+        product.category.toLowerCase().includes(search) ||
         product.stock.toString().includes(search) ||
-        product.description.toString().includes(search)
+        product.price.toString().includes(search)
       );
     });
     setFilteredProducts(filtered);
@@ -169,7 +165,7 @@ function Inventory() {
               <div className="flex gap-8">
                 <div className="flex flex-col">
                   <span className="font-semibold text-gray-600 text-base">
-                    2
+                  {products.filter((product) => product.stock === 0).length}
                   </span>
                   <span className="font-thin text-gray-400 text-xs">
                     
@@ -234,9 +230,9 @@ function Inventory() {
                 </th>
                 <th
                   className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900 cursor-pointer"
-                  onClick={() => handleSort("manufacturer")}
+                  onClick={() => handleSort("category")}
                 >
-                  Category {sortConfig.key === "manufacturer" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  Category {sortConfig.key === "category" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
                 <th
                   className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900 cursor-pointer"
@@ -246,9 +242,9 @@ function Inventory() {
                 </th>
                 <th
                   className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900 cursor-pointer"
-                  onClick={() => handleSort("description")}
+                  onClick={() => handleSort("price")}
                 >
-                  Price per Unit {sortConfig.key === "description" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  Price per Unit {sortConfig.key === "price" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                   Availibility
@@ -267,13 +263,13 @@ function Inventory() {
                       {element.name}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {element.manufacturer}
+                      {element.category}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {element.stock}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      ${element.description}
+                      ${element.price}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {element.stock > 0 ? "In Stock" : "Not in Stock"}

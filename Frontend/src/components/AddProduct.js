@@ -11,8 +11,8 @@ export default function AddProduct({
   const [product, setProduct] = useState({
     userId: authContext.user,
     name: "",
-    manufacturer: "",
-    description: "",
+    category: "",
+    price: "",
   });
   console.log("----",product)
   const [open, setOpen] = useState(true);
@@ -109,16 +109,16 @@ export default function AddProduct({
                           </div>
                           <div>
                             <label
-                              htmlFor="manufacturer"
+                              htmlFor="category"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
                               Category
                             </label>
                             <input
                               type="text"
-                              name="manufacturer"
-                              id="manufacturer"
-                              value={product.manufacturer}
+                              name="category"
+                              id="category"
+                              value={product.category}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
@@ -126,76 +126,40 @@ export default function AddProduct({
                               placeholder="Ex. Apple"
                             />
                           </div>
-                          {/* <div>
+                          
+                          <div>
                             <label
-                              for="price"
+                              htmlFor="stock"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Price
+                              Number of Units
                             </label>
-                            <input
+                            <input 
+                              id="stock"
                               type="number"
-                              name="price"
-                              id="price"
-                              value={product.price}
+                              name="stock"
+                              className="block p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="Ex. 20"
+                              value={product.stock}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="$299"
                             />
                           </div>
                           <div>
                             <label
-                              for="quantity"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >
-                              Quantity
-                            </label>
-                            <input
-                              type="number"
-                              name="quantity"
-                              id="quantity"
-                              value={product.quantity}
-                              onChange={(e) =>
-                                handleInputChange(e.target.name, e.target.value)
-                              }
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="0 - 999"
-                            />
-                          </div> */}
-
-                          <div className="sm:col-span-2">
-                            <label
-                              htmlFor="description"
+                              htmlFor="price"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
                               Price per unit
                             </label>
                             <input 
-                              id="description"
+                              id="price"
                               type="text"
-                              name="description"
+                              name="price"
                               className="block p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                               placeholder="Ex. 78.99"
-                              value={product.description}
-                              onChange={(e) =>
-                                handleInputChange(e.target.name, e.target.value)
-                              }
-                            />
-                            <label
-                              htmlFor="threshold"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >
-                              Threshold value
-                            </label>
-                            <input 
-                              id="threshold"
-                              type="text"
-                              name="threshold"
-                              className="block p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="Ex. 10"
-                              value={product.description}
+                              value={product.price}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }

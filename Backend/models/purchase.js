@@ -1,32 +1,43 @@
-const mongoose = require("mongoose");
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database'); // Import your Sequelize instance
 
-const PurchaseSchema = new mongoose.Schema(
-  {
-    userID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-      required: true,
-    },
-    ProductID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "product",
-      required: true,
-    },
-    QuantityPurchased: {
-      type: Number,
-      required: true,
-    },
-    PurchaseDate: {
-      type: String,
-      required: true,
-    },
-    TotalPurchaseAmount: {
-      type: Number,
-      required: true,
+const Purchase = sequelize.define('Purchase', {
+  _id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  userID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'users', // Table name for users
+      key: '_id',
     },
   },
-  { timestamps: true }
-);
+  ProductID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'products', // Table name for products
+      key: '_id',
+    },
+  },
+  QuantityPurchased: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  PurchaseDate: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  TotalPurchaseAmount: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
+}, {
+  tableName: 'purchases',
+  timestamps: true, // Automatically adds createdAt and updatedAt fields
+});
 
-const Purchase = mongoose.model("purchase", PurchaseSchema);
 module.exports = Purchase;

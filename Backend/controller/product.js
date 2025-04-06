@@ -4,92 +4,90 @@ const Sales = require("../models/sales");
 const User = require("../models/users");
 const nodemailer = require("../utility/nodemailer");
 
-// Add Post
-const addProduct = (req, res) => {
-  console.log("req: ", req.body.userId);
-  const addProduct = new Product({
-    userID: req.body.userId,
-    name: req.body.name,
-    manufacturer: req.body.manufacturer,
-    stock: 0,
-    description: req.body.description,
-  });
-
-  addProduct
-    .save()
-    .then((result) => {
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      res.status(402).send(err);
+// Add Product
+const addProduct = async (req, res) => {
+  console.log("Adding product:", req.body);
+  try {
+    const newProduct = await Product.create({
+      name: req.body.name,
+      category: req.body.category,
+      price: req.body.price,
+      stock: req.body.stock,
     });
+
+    res.status(200).send(newProduct);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error adding product");
+  }
 };
 
 // Get All Products
 const getAllProducts = async (req, res) => {
-  const findAllProducts = await Product.find({
-    userID: req.params.userId,
-  }).sort({ _id: -1 }); // -1 for descending;
-  res.json(findAllProducts);
+  try {
+    const findAllProducts = await Product.findAll({
+      order: [["_id", "DESC"]], // Sort by ID in descending order
+    });
+
+    res.json(findAllProducts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error fetching products");
+  }
 };
 
 // Delete Selected Product
 const deleteSelectedProduct = async (req, res) => {
-  const deleteProduct = await Product.deleteOne(
-    { _id: req.params.id }
-  );
-  const deletePurchaseProduct = await Purchase.deleteOne(
-    { ProductID: req.params.id }
-  );
+  try {
+    const deleteProduct = await Product.destroy({ where: { _id: req.params.id } });
+    const deletePurchaseProduct = await Purchase.destroy({ where: { _id: req.params.id } });
+    const deleteSaleProduct = await Sales.destroy({ where: { _id: req.params.id } });
 
-  const deleteSaleProduct = await Sales.deleteOne(
-    { ProductID: req.params.id }
-  );
-  res.json({ deleteProduct, deletePurchaseProduct, deleteSaleProduct });
+    res.json({ deleteProduct, deletePurchaseProduct, deleteSaleProduct });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error deleting product");
+  }
 };
 
 // Update Selected Product
 const updateSelectedProduct = async (req, res) => {
   try {
-    const updatedResult = await Product.findByIdAndUpdate(
-      { _id: req.body.productID },
+    const updatedResult = await Product.update(
       {
         name: req.body.name,
-        manufacturer: req.body.manufacturer,
-        description: req.body.description,
+        price: req.body.price,
+        category: req.body.category,
+        stock: req.body.stock,
       },
-      { new: true }
+      { where: { _id: req.body.productID }, returning: true }
     );
-    console.log(updatedResult);
-    res.json(updatedResult);
+
+    res.json(updatedResult[1][0]); // Return the updated product
   } catch (error) {
-    console.log(error);
-    res.status(402).send("Error");
+    console.error(error);
+    res.status(500).send("Error updating product");
   }
 };
 
 // Search Products
 const searchProduct = async (req, res) => {
-  const searchTerm = req.query.searchTerm;
-  const products = await Product.find({
-    name: { $regex: searchTerm, $options: "i" },
-  });
-  res.json(products);
+  try {
+    const searchTerm = req.query.searchTerm;
+    const products = await Product.findAll({
+      where: {
+        name: { [require("sequelize").Op.like]: `%${searchTerm}%` }, // Case-insensitive search
+      },
+    });
+
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error searching products");
+  }
 };
 
-const lowStock = async (req, res) => {
-
-  let user = await User.findOne({_id: req.body.userID})
-  let allproducts = await Product.find({});
-  let lowStockProducts = [];
-  allproducts.forEach(product => {
-    if(product.stock < 10) {
-      lowStockProducts.push(product);
-    }
-  })
-  nodemailer.sendMail(user.email, "lowstock", "Low Stock Alert", lowStockProducts)
-  res.json([user, lowStockProducts])
-}
+// Get Low Stock Products
 
 module.exports = {
   addProduct,
@@ -97,5 +95,4 @@ module.exports = {
   deleteSelectedProduct,
   updateSelectedProduct,
   searchProduct,
-  lowStock
 };

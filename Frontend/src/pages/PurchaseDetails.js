@@ -9,6 +9,7 @@ function PurchaseDetails() {
   const [updatePage, setUpdatePage] = useState(true);
 
   const authContext = useContext(AuthContext);
+  const localStorageData = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     fetchPurchaseData();
@@ -63,6 +64,7 @@ function PurchaseDetails() {
             <div className="flex gap-4 justify-center items-center ">
               <span className="font-bold">Purchase Details</span>
             </div>
+            { localStorageData.role === 0 && (
             <div className="flex gap-4">
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 text-xs  rounded"
@@ -72,6 +74,7 @@ function PurchaseDetails() {
                 Place Order
               </button>
             </div>
+            )}
           </div>
           <table className="min-w-full divide-y-2 divide-gray-200 text-sm">
             <thead>

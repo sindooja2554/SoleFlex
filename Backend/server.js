@@ -6,8 +6,7 @@ const purchaseRoute = require("./router/purchase");
 const salesRoute = require("./router/sales");
 const cors = require("cors");
 const User = require("./models/users");
-const Product = require("./models/Product");
-
+const Product = require("./models/product");
 
 const app = express();
 const PORT = 4000;
@@ -31,11 +30,12 @@ app.use("/api/sales", salesRoute);
 let userAuthCheck;
 app.post("/api/login", async (req, res) => {
   console.log(req.body);
-  // res.send("hi");
   try {
     const user = await User.findOne({
-      email: req.body.email,
-      password: req.body.password,
+      where: {
+        email: req.body.email,
+        password: req.body.password,
+      },
     });
     console.log("USER: ", user);
     if (user) {
@@ -47,7 +47,7 @@ app.post("/api/login", async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.send(error);
+    res.status(500).send(error);
   }
 });
 
@@ -58,32 +58,37 @@ app.get("/api/login", (req, res) => {
 // ------------------------------------
 
 // Registration API
-app.post("/api/register", (req, res) => {
-  let registerUser = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    password: req.body.password,
-    phoneNumber: req.body.phoneNumber,
-    imageUrl: req.body.imageUrl,
-  });
-
-  registerUser
-    .save()
-    .then((result) => {
-      res.status(200).send(result);
-      alert("Signup Successfull");
-    })
-    .catch((err) => console.log("Signup: ", err));
-  console.log("request: ", req.body);
+app.post("/api/register", async (req, res) => {
+  try {
+    const registerUser = await User.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: req.body.password,
+      phoneNumber: req.body.phoneNumber,
+      imageUrl: req.body.imageUrl,
+      username: req.body.firstName + req.body.lastName,
+    });
+    res.status(200).send(registerUser);
+    console.log("Signup Successful");
+  } catch (err) {
+    console.log("Signup Error: ", err);
+    res.status(500).send(err);
+  }
 });
 
-
-app.get("/testget", async (req,res)=>{
-  const result = await Product.findOne({ _id: '6429979b2e5434138eda1564'})
-  res.json(result)
-
-})
+// Test API for fetching a product
+app.get("/testget", async (req, res) => {
+  try {
+    const result = await Product.findOne({
+      where: { id: 1 }, // Replace with the appropriate condition
+    });
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+});
 
 // Here we are listening to the server
 app.listen(PORT, () => {

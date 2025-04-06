@@ -74,15 +74,7 @@ function Sales() {
             <div className="flex gap-4 justify-center items-center ">
               <span className="font-bold">Sales</span>
             </div>
-            <div className="flex gap-4">
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 text-xs  rounded"
-                onClick={addSaleModalSetting}
-              >
-                {/* <Link to="/inventory/add-product">Add Product</Link> */}
-                Add Sales
-              </button>
-            </div>
+            
           </div>
           <table className="min-w-full divide-y-2 divide-gray-200 text-sm">
             <thead>

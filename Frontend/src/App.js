@@ -32,6 +32,7 @@ const App = () => {
   }, [myLoginUser]);
 
   const signin = (newUser, callback) => {
+    console.log("new user---->: ", newUser); 
     setUser(newUser);
     callback();
   };

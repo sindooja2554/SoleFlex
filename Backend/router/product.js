@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express();
+const app = express.Router();
 const product = require("../controller/product");
 
 // Add Product
@@ -16,9 +16,6 @@ app.post("/update", product.updateSelectedProduct);
 
 // Search Product
 app.get("/search", product.searchProduct);
-
-// Get All Low Stock Products
-app.get("/getLowStockProducts", product.lowStock);
 
 // http://localhost:4000/api/product/search?searchTerm=fa
 
