@@ -18,17 +18,20 @@ function Store() {
   // Fetch sales data and send it to the AI API
   const fetchSalesDataAndGetInsights = async () => {
     try {
-      // Fetch sales data from your backend
-      const salesDataResponse = await fetch(
-        `http://localhost:4000/api/sales/get/${authContext.user}`
+      // Fetch products data
+      const productsResponse = await fetch(`http://localhost:4000/api/product/get/${authContext.user}`);
+      const productsData = await productsResponse.json();
+
+      // Fetch purchases data
+      const purchasesResponse = await fetch(
+        `http://localhost:4000/api/purchase/get`
       );
-      // const salesData = await salesDataResponse.json();
-      const salesData = {"_id":{"$oid":"67ea06b0665b1610d3c26c75"},"userID":{"$oid":"67e9fdb598a6cbff8e3a4298"},"ProductID":{"$oid":"67e9eddc98a6cbff8e3a3f55"},"StoreID":{"$oid":"67ea0696665b1610d3c26c6d"},"StockSold":{"$numberInt":"10"},"SaleDate":"2025-03-31","TotalSaleAmount":{"$numberInt":"1997"},"createdAt":{"$date":{"$numberLong":"1743390384608"}},"updatedAt":{"$date":{"$numberLong":"1743390384608"}},"__v":{"$numberInt":"0"}}
-      const productsData = {"_id":{"$oid":"67e9ebb798a6cbff8e3a3f1a"},"userID":{"$oid":"67e9fdb598a6cbff8e3a4298"},"name":"Nike Air Force","manufacturer":"Sneaker","stock":{"$numberInt":"25"},"description":"87.89","createdAt":{"$date":{"$numberLong":"1743383479662"}},"updatedAt":{"$date":{"$numberLong":"1743392324957"}},"__v":{"$numberInt":"0"}}
+      const salesData = await purchasesResponse.json();
+
       // Prepare the prompt for the AI API
       const prompt = `
-Based on the following product and sales data, as well as current trends in the footwear industry and seasonal weather conditions, provide insights in the following exact format:
-
+Based on the following product and sales data, as well as current trends in the footwear industry and seasonal weather conditions, provide insights in the following exact format so that it can be easily parsed:
+    Provide insights in exactly this format (no extra lines, and each line must start exactly as shown so it can be parsed correctly with this logic: const lines = aiText.split("\n").filter((line) => line.trim() !== "")):
 Top Sellers: <comma-separated list of product names with a short reason>
 Discontinue: <comma-separated list of product names with a short reason>
 Restock: <comma-separated list of product names with a short reason>
@@ -36,7 +39,6 @@ Restock: <comma-separated list of product names with a short reason>
 Products Data: ${JSON.stringify(productsData)}
 Sales Data: ${JSON.stringify(salesData)}
 `;
-
 
       // Send the prompt to the AI API (e.g., OpenAI's ChatGPT API)
       const aiApiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -49,19 +51,14 @@ Sales Data: ${JSON.stringify(salesData)}
           model: "gpt-3.5-turbo", // Updated model
           messages: [
             { role: "system", content: "You are an AI assistant providing insights based on sales data." },
-            { role: "user", content: prompt }
+            { role: "user", content: prompt },
           ],
           max_tokens: 500,
         }),
       });
 
       const aiApiData = await aiApiResponse.json();
-      // const aiText = aiApiData.choices[0].text;
-      const aiText = `
-      Top Sellers: Nike Air Force – steady sales and moderate stock suggest continued demand, worth reordering in higher quantities.
-Discontinue: No products to discontinue – limited data shows active sales and manageable stock.
-Restock: Nike Air Force – aligns with current spring trends and lifestyle sneaker demand; restocking ensures availability.
-    `;
+      const aiText = aiApiData.choices[0].message.content;
 
       // Parse the AI response into structured insights
       const insights = parseAiResponse(aiText);

@@ -5,38 +5,13 @@ import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-export const data = {
-  labels: ["Shoe", "Sliders", "Boots", "Sandal", "Sneakers", "Others"],
-  datasets: [
-    {
-      label: "# of Votes",
-      data: [0, 1, 5, 8, 9, 15],
-      backgroundColor: [
-        "rgba(255, 99, 132, 0.2)",
-        "rgba(54, 162, 235, 0.2)",
-        "rgba(255, 206, 86, 0.2)",
-        "rgba(75, 192, 192, 0.2)",
-        "rgba(153, 102, 255, 0.2)",
-        "rgba(255, 159, 64, 0.2)",
-      ],
-      borderColor: [
-        "rgba(255, 99, 132, 1)",
-        "rgba(54, 162, 235, 1)",
-        "rgba(255, 206, 86, 1)",
-        "rgba(75, 192, 192, 1)",
-        "rgba(153, 102, 255, 1)",
-        "rgba(255, 159, 64, 1)",
-      ],
-      borderWidth: 1,
-    },
-  ],
-};
 
 function Dashboard() {
   const [saleAmount, setSaleAmount] = useState("");
   const [purchaseAmount, setPurchaseAmount] = useState("");
   const [stores, setStores] = useState([]);
   const [products, setProducts] = useState([]);
+  const [totalPurchases, setTotalPurchases] = useState([]); // State to store all purchases
   const [doughnutData, setDoughnutData] = useState({
     labels: [],
     datasets: [
@@ -73,24 +48,11 @@ function Dashboard() {
     },
     series: [
       {
-        name: "series",
-        data: [10, 20, 40, 50, 60, 20, 10, 35, 45, 70, 25, 70],
+        name: "Monthly Sales Amount",
+        data: Array(12).fill(0), // Initialize with 12 zeros
       },
     ],
   });
-
-  // Update Chart Data
-  const updateChartData = (salesData) => {
-    setChart({
-      ...chart,
-      series: [
-        {
-          name: "Monthly Sales Amount",
-          data: [1928, 2738, 2490, 2088, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-      ],
-    });
-  };
 
   const authContext = useContext(AuthContext);
 
@@ -99,11 +61,46 @@ function Dashboard() {
     fetchTotalPurchaseAmount();
     fetchStoresData();
     fetchProductsData();
-    fetchMonthlySalesData();
-
+    fetchAllPurchases(); // Fetch all purchases when the component mounts
   }, []);
 
-  // Fetching total sales amount
+// Fetch all purchases
+const fetchAllPurchases = () => {
+  fetch("http://localhost:4000/api/purchase/get")
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("All Purchases: ", data); // Log the fetched purchases
+      setTotalPurchases(data); // Save the fetched data in totalPurchases
+      calculateMonthlySales(data); // Calculate monthly sales based on fetched data
+    })
+    .catch((err) => console.log(err));
+};
+
+// Calculate Monthly Sales Amount
+const calculateMonthlySales = (purchases) => {
+  const monthlySales = Array(12).fill(0); // Initialize an array with 12 zeros
+
+  purchases.forEach((purchase) => {
+    const monthIndex = new Date(purchase.PurchaseDate).getMonth(); // Get the month index (0-11)
+    monthlySales[monthIndex] += purchase.TotalPurchaseAmount; // Add the total purchase amount to the respective month
+  });
+
+  // Update the chart data
+  setChart((prevChart) => ({
+    ...prevChart,
+    series: [
+      {
+        name: "Monthly Sales Amount",
+        data: monthlySales,
+      },
+    ],
+  }));
+
+  // Update the current month's sales
+  const currentMonthIndex = new Date().getMonth();
+  setSaleAmount(monthlySales[currentMonthIndex]);
+};
+
   const fetchTotalSaleAmount = () => {
     fetch(
       `http://localhost:4000/api/sales/get/${authContext.user}/totalsaleamount`
@@ -136,14 +133,6 @@ function Dashboard() {
         setProducts(datas);
         updateDoughnutChart(datas); // Update Doughnut chart with product data
       })
-      .catch((err) => console.log(err));
-  };
-
-  // Fetching Monthly Sales
-  const fetchMonthlySalesData = () => {
-    fetch(`http://localhost:4000/api/sales/getmonthly`)
-      .then((response) => response.json())
-      .then((datas) => updateChartData(datas.salesAmount))
       .catch((err) => console.log(err));
   };
 
@@ -189,77 +178,110 @@ function Dashboard() {
       ],
     });
   };
-  console.log("Doughnut Data", doughnutData);
+console.log("Total Purchases: ", totalPurchases);
+
   return (
     <>
       <div className="grid grid-cols-1 col-span-12 lg:col-span-10 gap-6 md:grid-cols-3 lg:grid-cols-4  p-4 ">
-        <article className="flex flex-col gap-4 rounded-lg border  border-gray-100 bg-white p-6  ">
-          <div className="inline-flex gap-2 self-end rounded bg-green-100 p-1 text-green-600">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-              />
-            </svg>
+      <article className="flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-6">
+  <div
+    className={`inline-flex gap-2 self-end rounded p-1 ${
+      saleAmount >= chart.series[0].data[new Date().getMonth() - 1]
+        ? "bg-green-100 text-green-600"
+        : "bg-red-100 text-red-600"
+    }`}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d={
+          saleAmount >= chart.series[0].data[new Date().getMonth() - 1]
+            ? "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" // Upward arrow
+            : "M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" // Downward arrow
+        }
+      />
+    </svg>
 
-            <span className="text-xs font-medium"> 5.1% </span>
-          </div>
+    <span className="text-xs font-medium">
+      {Math.abs(
+        saleAmount >= chart.series[0].data[new Date().getMonth() - 1]
+          ? ((saleAmount -
+              chart.series[0].data[new Date().getMonth() - 1]) /
+              chart.series[0].data[new Date().getMonth() - 1]) *
+            100
+          : ((chart.series[0].data[new Date().getMonth() - 1] - saleAmount) /
+              chart.series[0].data[new Date().getMonth() - 1]) *
+            100
+      ).toFixed(2)}
+      %
+    </span>
+  </div>
 
-          <div>
-            <strong className="block text-sm font-medium text-gray-500">
-              Sales
-            </strong>
+  <div>
+    <strong className="block text-sm font-medium text-gray-500">Sales</strong>
+    <p>
+      <span className="text-2xl font-medium text-gray-900">${chart.series[0].data[new Date().getMonth()]}</span>
+    </p>
+  </div>
+</article>
 
-            <p>
-              <span className="text-2xl font-medium text-gray-900">
-                $2088
-              </span>
-            </p>
-          </div>
-        </article>
+<article className="flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-6">
+  <div
+    className={`inline-flex gap-2 self-end rounded p-1 ${
+      chart.series[0].data[new Date().getMonth() - 1] - saleAmount >= 0
+        ? "bg-red-100 text-red-600"
+        : "bg-green-100 text-green-600"
+    }`}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d={
+          chart.series[0].data[new Date().getMonth() - 1] - saleAmount >= 0
+            ? "M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" // Downward arrow
+            : "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" // Upward arrow
+        }
+      />
+    </svg>
 
-        <article className="flex flex-col   gap-4 rounded-lg border border-gray-100 bg-white p-6 ">
-        <div className="inline-flex gap-2 self-end rounded bg-green-100 p-1 text-green-600">
-        <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-              />
-            </svg>
+    <span className="text-xs font-medium">
+      {Math.abs(
+        ((saleAmount -
+          chart.series[0].data[new Date().getMonth() - 1]) /
+          chart.series[0].data[new Date().getMonth()]) *
+        100
+      ).toFixed(2)}
+      %
+    </span>
+  </div>
 
-            <span className="text-xs font-medium"> 13.81% </span>
-          </div>
-
-          <div>
-            <strong className="block text-sm font-medium text-gray-500">
-              Profit/Loss
-            </strong>
-
-            <p>
-              <span className="text-2xl font-medium text-gray-900">
-                $235.02
-              </span>
-
-              {/* <span className="text-xs text-gray-500"> from $404.32 </span> */}
-            </p>
-          </div>
-        </article>
+  <div>
+    <strong className="block text-sm font-medium text-gray-500">
+      Profit/Loss
+    </strong>
+    <p>
+      <span className="text-2xl font-medium text-gray-900">
+        ${Math.abs(saleAmount - chart.series[0].data[new Date().getMonth() - 1])}
+      </span>
+    </p>
+  </div>
+</article>
         <div className="flex justify-around bg-white rounded-lg py-8 col-span-full justify-center">
           <div>
             <Chart

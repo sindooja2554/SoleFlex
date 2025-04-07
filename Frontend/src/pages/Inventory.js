@@ -145,6 +145,16 @@ function Inventory() {
               </span>
               </div>
               <div className="flex flex-col gap-3 p-10  w-full  md:w-3/12  sm:border-y-2 md:border-x-2 md:border-y-0">
+              <span className="font-semibold text-green-600 text-base">
+                Total Categories
+              </span>
+              <span className="font-semibold text-gray-600 text-base">
+                {[...new Set(products.map((product) => product.category))].length}
+              </span>
+              <span className="font-thin text-gray-400 text-xs">
+              </span>
+            </div>
+              <div className="flex flex-col gap-3 p-10  w-full  md:w-3/12  sm:border-y-2 md:border-x-2 md:border-y-0">
                 <span className="font-semibold text-purple-600 text-base">
                   Top Selling
                 </span>

@@ -1,13 +1,13 @@
 const Sales = require("../models/sales");
+const Products = require("../models/product");
 const soldStock = require("../controller/soldStock");
 
 // Add Sales
 const addSales = async (req, res) => {
   try {
     const addSale = await Sales.create({
-      userID: req.body.userID,
       ProductID: req.body.productID,
-      StoreID: req.body.storeID,
+      StoreID: 1,
       StockSold: req.body.stockSold,
       SaleDate: req.body.saleDate,
       TotalSaleAmount: req.body.totalSaleAmount,
@@ -28,7 +28,7 @@ const getSalesData = async (req, res) => {
   try {
     const findAllSalesData = await Sales.findAll({
       order: [["_id", "DESC"]], // Sort by ID in descending order
-      include: ["Product", "Store"], // Include associated Product and Store models
+      include: ["Product"], // Include associated Product and Store models
     });
 
     res.status(200).json(findAllSalesData);
@@ -59,11 +59,13 @@ const getTotalSalesAmount = async (req, res) => {
 // Get Monthly Sales
 const getMonthlySales = async (req, res) => {
   try {
-    const sales = await Sales.findAll();
+    // const sales = await Sales.findAll();
+    const products = await Products.findAll();
 
     // Initialize array with 12 zeros
     const salesAmount = Array(12).fill(0);
 
+    
     sales.forEach((sale) => {
       const monthIndex = parseInt(sale.SaleDate.split("-")[1]) - 1; // Extract month from SaleDate
       salesAmount[monthIndex] += sale.TotalSaleAmount;

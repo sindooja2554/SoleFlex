@@ -83,9 +83,6 @@ function Sales() {
                   Product Name
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Store Name
-                </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                   Stock Sold
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
@@ -103,9 +100,6 @@ function Sales() {
                   <tr key={element._id}>
                     <td className="whitespace-nowrap px-4 py-2  text-gray-900">
                       {element.ProductID?.name}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {element.StoreID?.name}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {element.StockSold}
