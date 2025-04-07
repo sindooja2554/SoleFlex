@@ -21,43 +21,50 @@ export default function AddPurchaseDetails({
 
   // Handle input changes
   const handleInputChange = (key, value) => {
-    setPurchase((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    console.log(`Input changed: ${key} = ${value}`); // Debugging line
   
-    // Reset error if quantity changes
-    if (key === "quantityPurchased") {
-      setError("");
-    }
-  
-    // Automatically calculate total purchase amount
-    if (key === "quantityPurchased" || key === "productID") {
+    setPurchase((prev) => {
+      const updatedPurchase = {
+        ...prev,
+        [key]: value,
+      };
+ 
+      console.log("products", products);
+
       const selectedProduct = products.find(
-        (product) => product._id === (key === "productID" ? value : purchase.productID)
+        (product) => product._id == (key == "productID" ? value : prev.productID)
       );
+
+      console.log("Selected product:", selectedProduct);
+      
+      // Automatically calculate total purchase amount
+      if (key === "quantityPurchased" || key === "productID") {
+ // Debugging line
   
-      if (selectedProduct) {
-        const totalAmount =
-          (key === "quantityPurchased" ? value : purchase.quantityPurchased) *
-          selectedProduct.price;
+        if (selectedProduct) {
+          const totalAmount =
+            (key === "quantityPurchased" ? value : prev.quantityPurchased) *
+            selectedProduct.price;
   
-        setPurchase((prev) => ({
-          ...prev,
-          totalPurchaseAmount: totalAmount || "",
-        }));
+          updatedPurchase.totalPurchaseAmount = totalAmount || "";
   
-        // Validate quantity
-        if (
-          key === "quantityPurchased" &&
-          parseInt(value, 10) > selectedProduct.stock
-        ) {
-          setError(
-            `Cannot purchase more than ${selectedProduct.stock} units of ${selectedProduct.name}.`
-          );
+          // Validate quantity
+          if (
+            key === "quantityPurchased" &&
+            parseInt(value, 10) > selectedProduct.stock
+          ) {
+            setError(
+              `Cannot purchase more than ${selectedProduct.stock} units of ${selectedProduct.name}.`
+            );
+          } else {
+            setError(""); // Clear error if quantity is valid
+          }
         }
       }
-    }
+  
+      console.log("Updated purchase state:", updatedPurchase); // Debugging line
+      return updatedPurchase;
+    });
   };
 
   // POST Data
@@ -215,13 +222,18 @@ export default function AddPurchaseDetails({
                   </div>
                 </div>
                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                  <button
-                    type="button"
-                    className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                    onClick={addSale}
-                  >
-                    Add
-                  </button>
+                <button
+                  type="button"
+                  className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm sm:ml-3 sm:w-auto ${
+                    error
+                      ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                      : "bg-blue-600 text-white hover:bg-blue-500"
+                  }`}
+                  onClick={addSale}
+                  disabled={!!error} // Disable the button if there is an error
+                >
+                  Add
+                </button>
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"

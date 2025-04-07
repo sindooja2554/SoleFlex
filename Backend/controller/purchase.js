@@ -26,11 +26,15 @@ const addPurchase = async (req, res) => {
 const getPurchaseData = async (req, res) => {
   try {
     const findAllPurchaseData = await Purchase.findAll({
-      where: { userID: req.params.userID },
       order: [["_id", "DESC"]], // Sort by ID in descending order
-      include: ["Product"], // Include associated Product model
+      include: [
+        {
+          model: require("../models/product"), // Import the Product model
+          as: "Product", // Alias must match the one defined in the association
+        },
+      ],
     });
-
+    console.log(findAllPurchaseData);
     res.status(200).json(findAllPurchaseData);
   } catch (err) {
     console.error(err);
