@@ -37,7 +37,18 @@ function Dashboard() {
   const [purchaseAmount, setPurchaseAmount] = useState("");
   const [stores, setStores] = useState([]);
   const [products, setProducts] = useState([]);
-
+  const [doughnutData, setDoughnutData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: "# of Products",
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 1,
+      },
+    ],
+  });
   const [chart, setChart] = useState({
     options: {
       chart: {
@@ -89,6 +100,7 @@ function Dashboard() {
     fetchStoresData();
     fetchProductsData();
     fetchMonthlySalesData();
+
   }, []);
 
   // Fetching total sales amount
@@ -120,7 +132,10 @@ function Dashboard() {
   const fetchProductsData = () => {
     fetch(`http://localhost:4000/api/product/get/${authContext.user}`)
       .then((response) => response.json())
-      .then((datas) => setProducts(datas))
+      .then((datas) => {
+        setProducts(datas);
+        updateDoughnutChart(datas); // Update Doughnut chart with product data
+      })
       .catch((err) => console.log(err));
   };
 
@@ -132,6 +147,49 @@ function Dashboard() {
       .catch((err) => console.log(err));
   };
 
+  // Update Doughnut Chart Data
+  const updateDoughnutChart = (products) => {
+    const categoryCounts = {};
+    const colors = [
+      "rgba(255, 99, 132, 0.2)",
+      "rgba(54, 162, 235, 0.2)",
+      "rgba(255, 206, 86, 0.2)",
+      "rgba(75, 192, 192, 0.2)",
+      "rgba(153, 102, 255, 0.2)",
+      "rgba(255, 159, 64, 0.2)",
+    ];
+    const borderColors = [
+      "rgba(255, 99, 132, 1)",
+      "rgba(54, 162, 235, 1)",
+      "rgba(255, 206, 86, 1)",
+      "rgba(75, 192, 192, 1)",
+      "rgba(153, 102, 255, 1)",
+      "rgba(255, 159, 64, 1)",
+    ];
+
+    // Count products by category
+    products.forEach((product) => {
+      categoryCounts[product.category] =
+        (categoryCounts[product.category] || 0) + 1;
+    });
+
+    const labels = Object.keys(categoryCounts);
+    const data = Object.values(categoryCounts);
+
+    setDoughnutData({
+      labels: labels,
+      datasets: [
+        {
+          label: "# of Products",
+          data: data,
+          backgroundColor: colors.slice(0, labels.length),
+          borderColor: borderColors.slice(0, labels.length),
+          borderWidth: 1,
+        },
+      ],
+    });
+  };
+  console.log("Doughnut Data", doughnutData);
   return (
     <>
       <div className="grid grid-cols-1 col-span-12 lg:col-span-10 gap-6 md:grid-cols-3 lg:grid-cols-4  p-4 ">
@@ -212,7 +270,7 @@ function Dashboard() {
             />
           </div>
           <div>
-            <Doughnut data={data} />
+            <Doughnut data={doughnutData} />
           </div>
         </div>
       </div>

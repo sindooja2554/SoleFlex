@@ -227,7 +227,11 @@ function Login() {
           alert("Successfully Login");
           localStorage.setItem("user", JSON.stringify(data));
           authContext.signin(data._id, () => {
+            if (data.role === 0) {
+              navigate("/purchase-details");
+            } else {
             navigate("/");
+            }
           });
         })
         .catch((err) => {
