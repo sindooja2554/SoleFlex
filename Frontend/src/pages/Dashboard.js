@@ -69,7 +69,6 @@ const fetchAllPurchases = () => {
   fetch("http://localhost:4000/api/purchase/get")
     .then((response) => response.json())
     .then((data) => {
-      console.log("All Purchases: ", data); // Log the fetched purchases
       setTotalPurchases(data); // Save the fetched data in totalPurchases
       calculateMonthlySales(data); // Calculate monthly sales based on fetched data
     })
@@ -178,8 +177,6 @@ const calculateMonthlySales = (purchases) => {
       ],
     });
   };
-console.log("Total Purchases: ", totalPurchases);
-
   return (
     <>
       <div className="grid grid-cols-1 col-span-12 lg:col-span-10 gap-6 md:grid-cols-3 lg:grid-cols-4  p-4 ">

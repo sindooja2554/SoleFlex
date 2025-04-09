@@ -5,6 +5,7 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 export default function UpdateProduct({
   updateProductData,
   updateModalSetting,
+  handlePageUpdate
 }) {
   const { _id, name, category, stock, price } = updateProductData;
   const [product, setProduct] = useState({
@@ -32,6 +33,7 @@ export default function UpdateProduct({
       .then((result) => {
         alert("Product Updated");
         setOpen(false);
+        updateProductData(result)
       })
       .catch((err) => console.log(err));
   };

@@ -6,7 +6,6 @@ const nodemailer = require("../utility/nodemailer");
 
 // Add Product
 const addProduct = async (req, res) => {
-  console.log("Adding product:", req.body);
   try {
     const newProduct = await Product.create({
       name: req.body.name,
@@ -14,7 +13,17 @@ const addProduct = async (req, res) => {
       price: req.body.price,
       stock: req.body.stock,
     });
-
+    if(req.body.stock > 90) {
+    nodemailer.sendMail("vinaybilla2021@gmail.com", {template: "overstock"}, "High Stock Alert", {
+      name: req.body.name,
+      stock: req.body.stock
+    });
+  } if(req.body.stock < 10) {
+    nodemailer.sendMail("vinaybilla2021@gmail.com", {template: "lowstock"}, "Low Stock Alert", {
+      name: req.body.name,
+      stock: req.body.stock
+    });
+  }
     res.status(200).send(newProduct);
   } catch (err) {
     console.error(err);
@@ -53,17 +62,29 @@ const deleteSelectedProduct = async (req, res) => {
 // Update Selected Product
 const updateSelectedProduct = async (req, res) => {
   try {
-    const updatedResult = await Product.update(
+    await Product.update(
       {
         name: req.body.name,
         price: req.body.price,
         category: req.body.category,
         stock: req.body.stock,
       },
-      { where: { _id: req.body.productID }, returning: true }
+      { where: { _id: req.body.productID } }
     );
-
-    res.json(updatedResult[1][0]); // Return the updated product
+    const updatedProduct = await Product.findByPk(req.body.productID);
+    if (updatedProduct.stock > 90) {
+    nodemailer.sendMail("vinaybilla2021@gmail.com", {template: "overstock"}, "High Stock Alert", {
+      name: updatedProduct.name,
+      stock: updatedProduct.stock
+    });
+  }
+    if (updatedProduct.stock < 10) {
+      nodemailer.sendMail("vinaybilla2021@gmail.com", {template : "lowstock"}, 'Low Stock Alert', {
+        name: updatedProduct.name,
+        stock: updatedProduct.stock
+      });
+    }
+    res.json(updatedProduct); // Return the updated product
   } catch (error) {
     console.error(error);
     res.status(500).send("Error updating product");

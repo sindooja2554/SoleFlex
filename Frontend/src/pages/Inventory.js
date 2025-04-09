@@ -156,12 +156,12 @@ function Inventory() {
             </div>
               <div className="flex flex-col gap-3 p-10  w-full  md:w-3/12  sm:border-y-2 md:border-x-2 md:border-y-0">
                 <span className="font-semibold text-purple-600 text-base">
-                  Top Selling
+                  Low in Stock
                 </span>
                 <div className="flex gap-8">
                   <div className="flex flex-col">
                     <span className="font-semibold text-gray-600 text-base">
-                      5
+                      {products.filter((product) => product.stock < 10 && product.stock > 0).length}
                     </span>
                     <span className="font-thin text-gray-400 text-xs">
                     </span>

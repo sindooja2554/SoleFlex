@@ -1,25 +1,27 @@
 const Purchase = require("../models/purchase");
 const purchaseStock = require("./purchaseStock");
-
+const Users = require("../models/users");
+const mailService = require("../utility/nodemailer");
+const nodemailer = require("../utility/nodemailer");
 // Add Purchase Details
-const addPurchase = async (req, res) => {
-  try {
-    const addPurchaseDetails = await Purchase.create({
-      userID: req.body.userID,
-      ProductID: req.body.productID,
-      QuantityPurchased: req.body.quantityPurchased,
-      PurchaseDate: req.body.purchaseDate,
-      TotalPurchaseAmount: req.body.totalPurchaseAmount,
+const addPurchase = (req, res) => {
+  const addPurchaseDetails = new Purchase({
+    userID: req.body.userID,
+    ProductID: req.body.productID,
+    QuantityPurchased: req.body.quantityPurchased,
+    PurchaseDate: req.body.purchaseDate,
+    TotalPurchaseAmount: req.body.totalPurchaseAmount,
+  });
+
+  addPurchaseDetails
+    .save()
+    .then(async (result) => {
+      purchaseStock(req.body.productID, req.body.quantityPurchased, req.body, result._id);
+      res.status(200).send(result);
+    })
+    .catch((err) => {
+      res.status(402).send(err);
     });
-
-    // Update stock using purchaseStock controller
-    await purchaseStock.updateStockOnPurchase(req.body.productID, req.body.quantityPurchased);
-
-    res.status(200).send(addPurchaseDetails);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send(err);
-  }
 };
 
 // Get All Purchase Data
@@ -34,7 +36,6 @@ const getPurchaseData = async (req, res) => {
         },
       ],
     });
-    console.log(findAllPurchaseData);
     res.status(200).json(findAllPurchaseData);
   } catch (err) {
     console.error(err);

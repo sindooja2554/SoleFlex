@@ -29,7 +29,6 @@ app.use("/api/sales", salesRoute);
 // ------------- Signin --------------
 let userAuthCheck;
 app.post("/api/login", async (req, res) => {
-  console.log(req.body);
   try {
     const user = await User.findOne({
       where: {
@@ -37,7 +36,6 @@ app.post("/api/login", async (req, res) => {
         password: req.body.password,
       },
     });
-    console.log("USER: ", user);
     if (user) {
       res.send(user);
       userAuthCheck = user;

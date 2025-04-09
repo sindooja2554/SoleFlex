@@ -43,8 +43,8 @@
 </head>
 <body>
   <div class="container">
-    <h2>🎉 Thank you for your order, {{customerName}}!</h2>
-    <p>Your order <strong>#{{orderId}}</strong> has been placed successfully on {{orderDate}}.</p>
+    <h2>🎉 Thank you for your order!</h2>
+    <p>Your order <strong>#{{data.orderId}}</strong> has been placed successfully on {{data.orderDate}}.</p>
 
     <div class="summary">
       <h3>🧾 Order Summary:</h3>
@@ -57,19 +57,15 @@
           </tr>
         </thead>
         <tbody>
-          {{#each items}}
           <tr>
-            <td>{{this.name}}</td>
-            <td>{{this.quantity}}</td>
-            <td>${{this.price}}</td>
+            <td>{{data.name}}</td>
+            <td>{{data.quantity}}</td>
+            <td>${{data.price}}</td>
           </tr>
-          {{/each}}
         </tbody>
       </table>
-      <p><strong>Total:</strong> ${{totalAmount}}</p>
+      <p><strong>Total:</strong> ${{data.totalAmount}}</p>
     </div>
-
-    <p>We'll notify you once your order has been shipped.</p>
 
     <div class="footer">
       <p>If you have any questions, feel free to contact our support team.</p>
