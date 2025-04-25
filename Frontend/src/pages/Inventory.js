@@ -195,7 +195,8 @@ function Inventory() {
         {showUpdateModal && (
           <UpdateProduct
             updateProductData={updateProduct}
-            updateModalSetting={updateProductModalSetting}
+            handlePageUpdate={handlePageUpdate}
+            updateProductModalSetting={updateProductModalSetting}
           />
         )}
 

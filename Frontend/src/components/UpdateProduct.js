@@ -4,8 +4,8 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 
 export default function UpdateProduct({
   updateProductData,
-  updateModalSetting,
-  handlePageUpdate
+  handlePageUpdate,
+  updateProductModalSetting,
 }) {
   const { _id, name, category, stock, price } = updateProductData;
   const [product, setProduct] = useState({
@@ -33,7 +33,8 @@ export default function UpdateProduct({
       .then((result) => {
         alert("Product Updated");
         setOpen(false);
-        updateProductData(result)
+        handlePageUpdate(); 
+        updateProductModalSetting();
       })
       .catch((err) => console.log(err));
   };
@@ -180,7 +181,7 @@ export default function UpdateProduct({
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    onClick={() => updateModalSetting()}
+                    onClick={() => updateProductModalSetting()}
                     ref={cancelButtonRef}
                   >
                     Cancel

@@ -16,58 +16,116 @@ function Store() {
   }, []);
 
   // Fetch sales data and send it to the AI API
-  const fetchSalesDataAndGetInsights = async () => {
-    try {
-      // Fetch products data
-      const productsResponse = await fetch(`http://localhost:4000/api/product/get/${authContext.user}`);
-      const productsData = await productsResponse.json();
+//   const fetchSalesDataAndGetInsights = async () => {
+//     try {
+//       // Fetch products data
+//       const productsResponse = await fetch(`http://localhost:4000/api/product/get/${authContext.user}`);
+//       const productsData = await productsResponse.json();
 
-      // Fetch purchases data
-      const purchasesResponse = await fetch(
-        `http://localhost:4000/api/purchase/get`
-      );
-      const salesData = await purchasesResponse.json();
+//       // Fetch purchases data
+//       const purchasesResponse = await fetch(
+//         `http://localhost:4000/api/purchase/get`
+//       );
+//       const salesData = await purchasesResponse.json();
 
-      // Prepare the prompt for the AI API
-      const prompt = `
+//       // Prepare the prompt for the AI API
+//       const prompt = `
+// Based on the following product and sales data, as well as current trends in the footwear industry and seasonal weather conditions, provide insights in the following exact format so that it can be easily parsed:
+//     Provide insights in exactly this format (no extra lines, and each line must start exactly as shown so it can be parsed correctly with this logic: const lines = aiText.split("\n").filter((line) => line.trim() !== "")):
+// Top Sellers: <comma-separated list of product names with a short reason>
+// Discontinue: <comma-separated list of product names with a short reason>
+// Restock: <comma-separated list of product names with a short reason>
+
+// Products Data: ${JSON.stringify(productsData)}
+// Sales Data: ${JSON.stringify(salesData)}
+// `;
+
+//       // Send the prompt to the AI API (e.g., OpenAI's ChatGPT API)
+//       const aiApiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBNC6pBQ__X324Q-jJ7_6dHhjXXS2H7_MQ", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer YOUR_API_KEY`, // Replace with your OpenAI API key
+//         },
+//         body: JSON.stringify({
+//           model: "gpt-3.5-turbo", // Updated model
+//           messages: [
+//             { role: "system", content: "You are an AI assistant providing insights based on sales data." },
+//             { role: "user", content: prompt },
+//           ],
+//           max_tokens: 500,
+//         }),
+//       });
+
+//       const aiApiData = await aiApiResponse.json();
+//       const aiText = aiApiData.choices[0].message.content;
+
+//       // Parse the AI response into structured insights
+//       const insights = parseAiResponse(aiText);
+//       setAiResponse(insights);
+//     } catch (error) {
+//       console.error("Error fetching sales data or AI insights:", error);
+//     }
+//   };
+
+const fetchSalesDataAndGetInsights = async () => {
+  try {
+    // Fetch products data
+    const productsResponse = await fetch(`http://localhost:4000/api/product/get/${authContext.user}`);
+    const productsData = await productsResponse.json();
+
+    // Fetch purchases data
+    const purchasesResponse = await fetch(`http://localhost:4000/api/purchase/get`);
+    const salesData = await purchasesResponse.json();
+
+    // Prepare the content for the Gemini API
+    const content = `
 Based on the following product and sales data, as well as current trends in the footwear industry and seasonal weather conditions, provide insights in the following exact format so that it can be easily parsed:
     Provide insights in exactly this format (no extra lines, and each line must start exactly as shown so it can be parsed correctly with this logic: const lines = aiText.split("\n").filter((line) => line.trim() !== "")):
-Top Sellers: <comma-separated list of product names with a short reason>
-Discontinue: <comma-separated list of product names with a short reason>
-Restock: <comma-separated list of product names with a short reason>
+Top Sellers: <comma-separated list of product names with a short reason in sentence form>
+Discontinue: <comma-separated list of product names with a short reason in sentence form>
+Restock: <comma-separated list of product names with a short reason in sentence form>
 
 Products Data: ${JSON.stringify(productsData)}
 Sales Data: ${JSON.stringify(salesData)}
 `;
 
-      // Send the prompt to the AI API (e.g., OpenAI's ChatGPT API)
-      const aiApiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Send the content to the Gemini API
+    const aiApiResponse = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBNC6pBQ__X324Q-jJ7_6dHhjXXS2H7_MQ", // Replace GEMINI_API_KEY with your actual API key
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer YOUR_API_KEY`, // Replace with your OpenAI API key
         },
         body: JSON.stringify({
-          model: "gpt-3.5-turbo", // Updated model
-          messages: [
-            { role: "system", content: "You are an AI assistant providing insights based on sales data." },
-            { role: "user", content: prompt },
+          contents: [
+            {
+              parts: [
+                {
+                  text: content,
+                },
+              ],
+            },
           ],
-          max_tokens: 500,
         }),
-      });
+      }
+    );
 
-      const aiApiData = await aiApiResponse.json();
-      const aiText = aiApiData.choices[0].message.content;
-
-      // Parse the AI response into structured insights
-      const insights = parseAiResponse(aiText);
-      setAiResponse(insights);
-    } catch (error) {
-      console.error("Error fetching sales data or AI insights:", error);
+    if (!aiApiResponse.ok) {
+      throw new Error(`Gemini API error: ${aiApiResponse.statusText}`);
     }
-  };
-
+    const aiApiData = await aiApiResponse.json();
+    // Extract the response text
+    const aiText = aiApiData.candidates[0].content.parts[0].text
+    console.log(aiText);
+    // Parse the AI response into structured insights
+    const insights = parseAiResponse(aiText);
+    setAiResponse(insights);
+  } catch (error) {
+    console.error("Error fetching sales data or AI insights:", error);
+  }
+};
   // Parse the AI response into structured insights
   const parseAiResponse = (aiText) => {
     // Example parsing logic (you can customize this based on the AI response format)
